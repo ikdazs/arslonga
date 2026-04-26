@@ -3,370 +3,153 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>合同会社設立 → 農地所有適格法人フロー</title>
+<title>ars longa 作戦会議</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{
     font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
     background:#FAFAF7;
     min-height:100vh;
-    padding:24px 16px;
+    padding:24px 16px 48px;
     max-width:640px;
     margin:0 auto;
     -webkit-font-smoothing:antialiased;
+    color:#1a1a1a;
   }
 
-  /* Header */
   .header{
     text-align:center;
     margin-bottom:32px;
-    padding:24px 16px;
-    background:linear-gradient(135deg,#2D5016 0%,#1A4D6E 100%);
+    padding:32px 16px 28px;
+    background:linear-gradient(135deg,#2D5016 0%,#1B3A26 40%,#1A4D6E 100%);
     border-radius:16px;
     color:#fff;
+    position:relative;
+    overflow:hidden;
   }
-  .header-sub{font-size:13px;letter-spacing:3px;opacity:.8;margin-bottom:8px}
-  .header h1{font-size:20px;font-weight:700;margin:0 0 6px;line-height:1.5}
-  .header-note{font-size:13px;opacity:.75;margin-top:8px}
-
-  /* Timeline */
-  .timeline{position:relative}
-  .phase-block{margin-bottom:20px;position:relative}
-
-  .connector{
-    position:absolute;left:20px;top:60px;bottom:-20px;width:2px;
-    opacity:.5;z-index:0;
+  .header::after{
+    content:'';position:absolute;top:-20%;right:-8%;
+    width:180px;height:180px;border-radius:50%;
+    background:rgba(255,255,255,.04);
   }
+  .header-sub{font-size:12px;letter-spacing:4px;opacity:.7;margin-bottom:10px;text-transform:uppercase}
+  .header h1{font-size:26px;font-weight:700;margin:0 0 8px;line-height:1.4;letter-spacing:.5px}
+  .header-note{font-size:13px;opacity:.65;margin-top:10px;line-height:1.6}
 
-  .phase-header{
-    display:flex;align-items:flex-start;gap:14px;
-    cursor:pointer;position:relative;z-index:1;
-    -webkit-tap-highlight-color:transparent;
+  .section-label{
+    font-size:11px;font-weight:600;letter-spacing:2px;
+    color:#666;margin-bottom:12px;padding-left:4px;
+    text-transform:uppercase;
   }
 
-  .phase-circle{
-    width:42px;height:42px;border-radius:50%;
-    color:#fff;display:flex;align-items:center;justify-content:center;
-    font-size:15px;font-weight:700;flex-shrink:0;
+  .page-list{display:flex;flex-direction:column;gap:12px}
+
+  .page-card{
+    display:block;
+    background:#fff;
+    border:1px solid #e0e0dc;
+    border-radius:14px;
+    padding:18px 20px;
+    text-decoration:none;
+    color:inherit;
+    transition:box-shadow .2s,transform .15s;
+    position:relative;
+    overflow:hidden;
+  }
+  .page-card:hover{
+    box-shadow:0 4px 18px rgba(0,0,0,.09);
+    transform:translateY(-1px);
+  }
+  .page-card:active{transform:translateY(0)}
+
+  .page-card-accent{
+    position:absolute;left:0;top:0;bottom:0;width:4px;
+    border-radius:14px 0 0 14px;
   }
 
-  .phase-card{
-    flex:1;border-radius:12px;padding:14px 16px;
-    transition:box-shadow .2s;
+  .card-inner{padding-left:12px}
+  .card-tag{
+    display:inline-block;
+    font-size:10px;font-weight:700;letter-spacing:1.5px;
+    padding:2px 8px;border-radius:4px;
+    margin-bottom:8px;
+    text-transform:uppercase;
+  }
+  .card-title{font-size:16px;font-weight:700;line-height:1.5;margin-bottom:4px}
+  .card-desc{font-size:13px;color:#666;line-height:1.6}
+
+  .arrow-icon{
+    position:absolute;right:18px;top:50%;transform:translateY(-50%);
+    font-size:18px;color:#bbb;
   }
 
-  .phase-top{display:flex;justify-content:space-between;align-items:center}
-  .phase-label{font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:2px}
-  .phase-title{font-size:16px;font-weight:700;color:#1a1a1a}
+  /* カード個別カラー */
+  .card-green .page-card-accent{background:linear-gradient(180deg,#2D5016,#3a6b1e)}
+  .card-green .card-tag{background:#f0f7ea;color:#2D5016}
 
-  .phase-arrow{
-    font-size:18px;transition:transform .25s;
-  }
-  .phase-arrow.open{transform:rotate(180deg)}
+  .card-teal .page-card-accent{background:linear-gradient(180deg,#1B3A26,#2A5A3C)}
+  .card-teal .card-tag{background:#e8f4ee;color:#1B3A26}
 
-  .phase-meta{display:flex;gap:12px;margin-top:8px;font-size:12px;color:#666}
-  .phase-tag{
-    background:#fff;padding:2px 8px;border-radius:6px;
-    border:1px solid #e0e0e0;
-  }
+  .card-blue .page-card-accent{background:linear-gradient(180deg,#1A4D6E,#0D3B54)}
+  .card-blue .card-tag{background:#e8f2f8;color:#1A4D6E}
 
-  /* Steps */
-  .steps-container{
-    margin-left:56px;margin-top:12px;
-    display:none;flex-direction:column;gap:8px;
-  }
-  .steps-container.open{display:flex}
-
-  .step-card{
-    border-radius:10px;padding:12px 14px;
-    cursor:pointer;transition:all .2s;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .step-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
-  .step-inner{display:flex;align-items:center;gap:10px}
-  .step-icon{font-size:20px;flex-shrink:0}
-  .step-body{flex:1}
-  .step-label{font-size:14px;font-weight:600;color:#1a1a1a}
-  .step-detail{font-size:12px;color:#777;margin-top:3px;line-height:1.6}
-
-  .step-chevron{
-    font-size:14px;color:#aaa;transition:transform .2s;flex-shrink:0;
-  }
-  .step-chevron.open{transform:rotate(90deg)}
-
-  .step-tip{
-    margin-top:10px;padding:10px 12px;
-    background:#FFFDE8;border-radius:8px;
-    border-left:3px solid #E8C840;
-    font-size:12px;color:#5A4E1A;line-height:1.7;
-    display:none;
-  }
-  .step-tip.open{display:block}
-
-  .step-arrow{
-    text-align:center;font-size:16px;margin:2px 0;opacity:.6;
-  }
-
-  .step-card.highlight{border-width:2px;border-style:solid}
-  .step-card.highlight .step-label{font-weight:700}
-
-  /* Cost Table */
-  .cost-table{
-    margin-top:32px;background:#fff;
-    border-radius:14px;border:1px solid #e0e0dc;overflow:hidden;
-  }
-  .cost-header{
-    background:#2D3B2D;color:#fff;
-    padding:14px 18px;font-size:15px;font-weight:700;letter-spacing:1px;
-  }
-  .cost-row{
-    display:flex;align-items:center;padding:11px 18px;
-    border-bottom:1px solid #f0f0ec;
-  }
-  .cost-row:last-child{border-bottom:none}
-  .cost-row.bold{background:#F5F8F0}
-  .cost-item{flex:1;font-size:13px;color:#333}
-  .cost-row.bold .cost-item{font-weight:700;color:#2D5016}
-  .cost-amount{
-    font-size:14px;font-weight:700;color:#1a1a1a;
-    margin-right:10px;min-width:80px;text-align:right;
-  }
-  .cost-row.bold .cost-amount{color:#2D5016}
-  .cost-note{font-size:11px;color:#999;max-width:140px;line-height:1.4}
-
-  /* Comparison */
-  .compare{
-    margin-top:20px;background:#EBF3F8;border-radius:12px;
-    padding:16px 18px;border:1px solid #B8D4E8;
-  }
-  .compare-title{font-size:13px;font-weight:700;color:#1A4D6E;margin-bottom:8px}
-  .compare-boxes{display:flex;gap:12px}
-  .compare-box{
-    flex:1;background:#fff;border-radius:8px;padding:12px;text-align:center;
-  }
-  .compare-box.left{border:1px solid #ddd}
-  .compare-box.right{border:2px solid #2D5016}
-  .compare-box .label{font-size:11px;color:#888}
-  .compare-box.right .label{color:#2D5016;font-weight:600}
-  .compare-box .amount{font-size:20px;font-weight:700;margin-top:4px}
-  .compare-box.left .amount{color:#666}
-  .compare-box.right .amount{color:#2D5016}
-  .compare-box .saving{font-size:11px;color:#2D5016;margin-top:2px}
-
-  /* Footer */
-  .memo{
-    margin-top:24px;padding:14px 16px;
-    background:#FFFDE8;border-radius:10px;border:1px solid #E8D880;
-    font-size:12px;color:#5A4E1A;line-height:1.8;
-  }
-  .memo strong{display:block;margin-bottom:4px}
-
-  .footnote{
-    text-align:center;font-size:11px;color:#bbb;
-    margin-top:20px;padding-bottom:16px;
+  .footer{
+    margin-top:40px;text-align:center;
+    font-size:12px;color:#aaa;letter-spacing:1px;
   }
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
-  <div class="header-sub">FLOW CHART</div>
-  <h1>合同会社設立から<br>農地所有適格法人になるまで</h1>
-  <div class="header-note">全体所要期間：約3〜7ヶ月</div>
+  <div class="header-sub">Ars Longa</div>
+  <h1>作戦会議</h1>
+  <div class="header-note">農地所有適格法人 × 合同会社設立プロジェクト</div>
 </div>
 
-<!-- Timeline -->
-<div class="timeline" id="timeline"></div>
+<div class="section-label">ドキュメント一覧</div>
 
-<!-- Cost Table -->
-<div class="cost-table">
-  <div class="cost-header">💴 合同会社の設立費用 内訳</div>
-  <div id="costRows"></div>
-</div>
+<div class="page-list">
 
-<!-- Comparison -->
-<div class="compare">
-  <div class="compare-title">📊 株式会社 vs 合同会社 設立費用比較</div>
-  <div class="compare-boxes">
-    <div class="compare-box left">
-      <div class="label">株式会社</div>
-      <div class="amount">約20〜25万円</div>
-    </div>
-    <div class="compare-box right">
-      <div class="label">合同会社</div>
-      <div class="amount">約7〜8万円</div>
-      <div class="saving">▼ 約13〜17万円 節約</div>
-    </div>
-  </div>
-</div>
-
-<!-- Footer -->
-<div class="memo">
-  <strong>💡 診断士メモ</strong>
-  まず賃借で実績を積み、後から農地所有適格法人にステップアップする方法もリスクが低くおすすめです。認定農業者の申請は農地取得と並行して進めましょう。
-</div>
-<div class="footnote">※ 各ステップをタップすると詳細とアドバイスが表示されます</div>
-
-<script>
-const phases = [
-  {
-    id:1, phase:"Phase 1", title:"準備・事前相談",
-    duration:"1〜3ヶ月", color:"#2D5016", bgColor:"#F0F5EB", borderColor:"#8DB06B",
-    cost:"0円（交通費等実費のみ）",
-    steps:[
-      {label:"農業委員会へ事前相談",detail:"営農予定地の市町村農業委員会・農政課・JAに事業構想を伝える。最重要ステップ。",icon:"🏛️",tip:"新規参入者は「本気度」を見られます。計画の具体性が信頼につながります。"},
-      {label:"事業計画・営農計画の策定",detail:"3か年の売上見込み、資金計画、栽培計画、人員配置、農地利用計画を作成。",icon:"📋",tip:"農業未経験の場合、今後3年の売上見込みで事業要件（売上過半）を判断されます。"},
-      {label:"出資者・社員の確定",detail:"議決権要件（農業関係者が過半）と役員要件を満たす構成を設計。",icon:"👥",tip:"合同会社は社員の過半数が農業関係者である必要があります。"},
-      {label:"農地の選定・交渉",detail:"農地バンク（農地中間管理機構）や地元農家とのマッチング。売主・貸主との条件交渉。",icon:"🌾",tip:"地域計画（目標地図）に位置づけられると農地取得がスムーズになります。"}
-    ]
-  },
-  {
-    id:2, phase:"Phase 2", title:"合同会社の設立",
-    duration:"1〜2週間", color:"#1A4D6E", bgColor:"#EBF3F8", borderColor:"#6BA3C7",
-    cost:"約6〜10万円",
-    steps:[
-      {label:"定款の作成",detail:"事業目的に「農業」「農産物の加工・販売」等を明記。定款認証は不要（合同会社の利点）。",icon:"📝",tip:"株式会社と異なり公証役場での認証が不要。印紙代4万円も電子定款で0円に。"},
-      {label:"出資金の払い込み",detail:"社員（出資者）が出資金を代表社員の口座に振込。資本金の額に制限なし。",icon:"💰",tip:"資本金1円でも設立可能ですが、対外信用と運転資金を考慮して設定を。"},
-      {label:"法務局で設立登記",detail:"登記申請書、定款、出資払込証明書等を提出。登録免許税6万円。",icon:"🏢",tip:"登記完了で法人成立。この時点ではまだ農地所有適格法人ではありません。"},
-      {label:"各種届出",detail:"税務署、都道府県・市町村、年金事務所、労基署、ハローワーク等への届出。",icon:"📮",tip:"法人設立届出書は設立後2ヶ月以内。青色申告承認申請書も忘れずに。"}
-    ]
-  },
-  {
-    id:3, phase:"Phase 3", title:"農地取得の許可申請",
-    duration:"1〜3ヶ月", color:"#7A3B10", bgColor:"#FDF5EE", borderColor:"#D4A574",
-    cost:"0円（行政書士委託時 +5〜15万円）",
-    steps:[
-      {label:"要件確認書の提出",detail:"農業委員会に農地所有適格法人の4要件を満たすことを示す届出書を提出。",icon:"✅",tip:"法人形態・事業・議決権・役員の4要件すべてを書面で証明します。"},
-      {label:"農地法第3条の許可申請",detail:"売主（貸主）との共同申請。営農計画書、構成員一覧、定款等を添付。",icon:"📄",tip:"農業委員会の審査会は月1回。申請締切日を必ず確認してください。"},
-      {label:"農業委員会の審査・許可",detail:"全部効率利用要件・農地所有適格法人要件・地域との調和要件を審査。",icon:"🔍",tip:"事前相談で関係を築いていれば、審査はスムーズに進みます。"},
-      {label:"農地の取得 → 農地所有適格法人に",detail:"許可を得て農地を取得した時点で、農地所有適格法人となる。",icon:"🎯",tip:"「設立」ではなく「農地取得」がトリガーです。",highlight:true}
-    ]
-  },
-  {
-    id:4, phase:"Phase 4", title:"営農開始・維持管理",
-    duration:"継続", color:"#5C1A5C", bgColor:"#F8EEF8", borderColor:"#C78DC7",
-    cost:"1,000〜2,000万円（事業開始総額目安）",
-    steps:[
-      {label:"認定農業者の申請",detail:"市町村に農業経営改善計画を提出。スーパーL資金等の融資枠が拡大。",icon:"📈",tip:"法人の借入限度額は個人の3倍以上。早期申請がおすすめ。"},
-      {label:"毎年の報告義務",detail:"事業年度終了後3ヶ月以内に農業委員会へ報告書を提出。4要件の維持を確認。",icon:"📊",tip:"怠ると30万円以下の過料。要件未充足は是正勧告→最悪、農地権利喪失。"}
-    ]
-  }
-];
-
-const costData = [
-  {item:"登録免許税",amount:"6万円",note:"株式会社の15万円より大幅に安い"},
-  {item:"定款印紙代",amount:"0円",note:"電子定款で不要（紙なら4万円）"},
-  {item:"定款認証手数料",amount:"0円",note:"合同会社は認証不要"},
-  {item:"印鑑作成・謄本等",amount:"1〜2万円",note:""},
-  {item:"設立費用 合計",amount:"約7〜8万円",note:"自分で手続きの場合",bold:true},
-  {item:"行政書士・司法書士",amount:"+5〜15万円",note:"依頼する場合の追加費用"},
-  {item:"農地法3条 許可申請",amount:"0円",note:"申請手数料は無料"}
-];
-
-let expandedPhase = null;
-let expandedStep = null;
-
-function render() {
-  const tl = document.getElementById("timeline");
-  tl.innerHTML = "";
-
-  phases.forEach((p, pi) => {
-    const block = document.createElement("div");
-    block.className = "phase-block";
-
-    // Connector
-    if (pi < phases.length - 1) {
-      const conn = document.createElement("div");
-      conn.className = "connector";
-      conn.style.background = `linear-gradient(to bottom, ${p.borderColor}, ${phases[pi+1].borderColor})`;
-      block.appendChild(conn);
-    }
-
-    // Phase header
-    const isOpen = expandedPhase === p.id;
-    const header = document.createElement("div");
-    header.className = "phase-header";
-    header.onclick = () => { expandedPhase = expandedPhase === p.id ? null : p.id; expandedStep = null; render(); };
-
-    header.innerHTML = `
-      <div class="phase-circle" style="background:${p.color};box-shadow:0 2px 8px ${p.color}44">${p.id}</div>
-      <div class="phase-card" style="background:${p.bgColor};border:1.5px solid ${p.borderColor};${isOpen ? `box-shadow:0 4px 16px ${p.color}18` : ''}">
-        <div class="phase-top">
-          <div>
-            <div class="phase-label" style="color:${p.color}">${p.phase}</div>
-            <div class="phase-title">${p.title}</div>
-          </div>
-          <div class="phase-arrow ${isOpen ? 'open' : ''}" style="color:${p.color}">▾</div>
-        </div>
-        <div class="phase-meta">
-          <span class="phase-tag">⏱ ${p.duration}</span>
-          <span class="phase-tag">¥ ${p.cost}</span>
-        </div>
+  <div class="card-green">
+    <a class="page-card" href="flowchart.html">
+      <div class="page-card-accent"></div>
+      <div class="card-inner">
+        <div class="card-tag">フロー</div>
+        <div class="card-title">合同会社設立 → 農地所有適格法人フロー</div>
+        <div class="card-desc">設立から農地所有適格法人認定までの全体フロー</div>
       </div>
-    `;
-    block.appendChild(header);
+      <span class="arrow-icon">›</span>
+    </a>
+  </div>
 
-    // Steps
-    const stepsWrap = document.createElement("div");
-    stepsWrap.className = "steps-container" + (isOpen ? " open" : "");
+  <div class="card-teal">
+    <a class="page-card" href="llc-org-design-guide.html">
+      <div class="page-card-accent"></div>
+      <div class="card-inner">
+        <div class="card-tag">ガイド</div>
+        <div class="card-title">合同会社の組織設計ガイド</div>
+        <div class="card-desc">農地所有適格法人に対応した組織設計の詳細ガイド</div>
+      </div>
+      <span class="arrow-icon">›</span>
+    </a>
+  </div>
 
-    p.steps.forEach((s, si) => {
-      const stepKey = `${p.id}-${si}`;
-      const isStepOpen = expandedStep === stepKey;
+  <div class="card-blue">
+    <a class="page-card" href="llc-setup-detail.html">
+      <div class="page-card-accent"></div>
+      <div class="card-inner">
+        <div class="card-tag">詳細</div>
+        <div class="card-title">合同会社設立の詳細フロー</div>
+        <div class="card-desc">設立手続きのステップを詳細に解説したリファレンス</div>
+      </div>
+      <span class="arrow-icon">›</span>
+    </a>
+  </div>
 
-      const stepEl = document.createElement("div");
+</div>
 
-      const card = document.createElement("div");
-      card.className = "step-card" + (s.highlight ? " highlight" : "");
-      card.style.background = s.highlight ? `${p.color}0D` : "#fff";
-      card.style.border = s.highlight ? `2px solid ${p.color}` : "1px solid #e8e8e4";
-      card.onclick = (e) => { e.stopPropagation(); expandedStep = expandedStep === stepKey ? null : stepKey; render(); };
+<div class="footer">ars longa, vita brevis</div>
 
-      card.innerHTML = `
-        <div class="step-inner">
-          <span class="step-icon">${s.icon}</span>
-          <div class="step-body">
-            <div class="step-label" style="${s.highlight ? `color:${p.color};font-weight:700` : ''}">${s.label}</div>
-            <div class="step-detail">${s.detail}</div>
-          </div>
-          <div class="step-chevron ${isStepOpen ? 'open' : ''}">›</div>
-        </div>
-        <div class="step-tip ${isStepOpen ? 'open' : ''}">💡 ${s.tip}</div>
-      `;
-      stepEl.appendChild(card);
-
-      if (si < p.steps.length - 1) {
-        const arrow = document.createElement("div");
-        arrow.className = "step-arrow";
-        arrow.style.color = p.borderColor;
-        arrow.textContent = "↓";
-        stepEl.appendChild(arrow);
-      }
-
-      stepsWrap.appendChild(stepEl);
-    });
-
-    block.appendChild(stepsWrap);
-    tl.appendChild(block);
-  });
-
-  // Cost rows
-  const costContainer = document.getElementById("costRows");
-  costContainer.innerHTML = "";
-  costData.forEach(r => {
-    const row = document.createElement("div");
-    row.className = "cost-row" + (r.bold ? " bold" : "");
-    row.innerHTML = `
-      <div class="cost-item">${r.item}</div>
-      <div class="cost-amount">${r.amount}</div>
-      ${r.note ? `<div class="cost-note">${r.note}</div>` : '<div class="cost-note"></div>'}
-    `;
-    costContainer.appendChild(row);
-  });
-}
-
-render();
-</script>
 </body>
 </html>
