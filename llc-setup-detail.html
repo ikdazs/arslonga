@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>合同会社設立の詳細フロー</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+    background:#FAFAF7;
+    min-height:100vh;
+    padding:24px 16px;
+    max-width:640px;
+    margin:0 auto;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .header{
+    text-align:center;margin-bottom:32px;padding:24px 16px;
+    background:linear-gradient(135deg,#1A4D6E 0%,#0D3B54 100%);
+    border-radius:16px;color:#fff;
+  }
+  .header-sub{font-size:13px;letter-spacing:3px;opacity:.8;margin-bottom:8px}
+  .header h1{font-size:20px;font-weight:700;margin:0 0 6px;line-height:1.5}
+  .header-note{font-size:13px;opacity:.75;margin-top:8px}
+
+  .timeline{position:relative}
+  .step-block{margin-bottom:20px;position:relative}
+
+  .connector{
+    position:absolute;left:20px;top:60px;bottom:-20px;width:2px;
+    opacity:.5;z-index:0;
+  }
+
+  .step-header{
+    display:flex;align-items:flex-start;gap:14px;
+    cursor:pointer;position:relative;z-index:1;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  .step-circle{
+    width:42px;height:42px;border-radius:50%;
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:700;flex-shrink:0;
+  }
+
+  .step-card{
+    flex:1;border-radius:12px;padding:14px 16px;
+    transition:box-shadow .2s;
+  }
+
+  .step-top{display:flex;justify-content:space-between;align-items:center}
+  .step-label{font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:2px}
+  .step-title{font-size:16px;font-weight:700;color:#1a1a1a}
+
+  .step-arrow{font-size:18px;transition:transform .25s}
+  .step-arrow.open{transform:rotate(180deg)}
+
+  .step-meta{display:flex;gap:10px;margin-top:8px;font-size:12px;color:#666;flex-wrap:wrap}
+  .step-tag{
+    background:#fff;padding:2px 8px;border-radius:6px;
+    border:1px solid #e0e0e0;white-space:nowrap;
+  }
+
+  .details-container{
+    margin-left:56px;margin-top:12px;
+    display:none;flex-direction:column;gap:8px;
+  }
+  .details-container.open{display:flex}
+
+  .detail-card{
+    border-radius:10px;padding:12px 14px;
+    cursor:pointer;transition:all .2s;
+    -webkit-tap-highlight-color:transparent;
+    background:#fff;border:1px solid #e8e8e4;
+  }
+  .detail-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .detail-card.highlight{border-width:2px;border-style:solid}
+
+  .detail-inner{display:flex;align-items:center;gap:10px}
+  .detail-icon{font-size:20px;flex-shrink:0}
+  .detail-body{flex:1}
+  .detail-label{font-size:14px;font-weight:600;color:#1a1a1a}
+  .detail-text{font-size:12px;color:#777;margin-top:3px;line-height:1.6}
+
+  .detail-chevron{
+    font-size:14px;color:#aaa;transition:transform .2s;flex-shrink:0;
+  }
+  .detail-chevron.open{transform:rotate(90deg)}
+
+  .detail-tip{
+    margin-top:10px;padding:10px 12px;
+    background:#FFFDE8;border-radius:8px;
+    border-left:3px solid #E8C840;
+    font-size:12px;color:#5A4E1A;line-height:1.7;
+    display:none;
+  }
+  .detail-tip.open{display:block}
+
+  .detail-sep{
+    text-align:center;font-size:16px;margin:2px 0;opacity:.6;
+  }
+
+  /* Checklist */
+  .checklist{
+    margin-top:32px;background:#fff;
+    border-radius:14px;border:1px solid #e0e0dc;overflow:hidden;
+  }
+  .checklist-header{
+    color:#fff;padding:14px 18px;font-size:15px;font-weight:700;letter-spacing:1px;
+  }
+  .checklist-row{
+    display:flex;align-items:center;padding:11px 18px;
+    border-bottom:1px solid #f0f0ec;font-size:13px;
+  }
+  .checklist-row:last-child{border-bottom:none}
+  .checklist-row.section{background:#f8f8f5;font-weight:700;color:#333}
+  .checklist-icon{width:28px;text-align:center;flex-shrink:0;font-size:16px}
+  .checklist-item{flex:1;color:#333}
+  .checklist-note{font-size:11px;color:#999;max-width:150px;line-height:1.4;text-align:right}
+
+  /* Cost summary */
+  .cost-summary{
+    margin-top:20px;border-radius:12px;
+    padding:16px 18px;border:1px solid #B8D4E8;background:#EBF3F8;
+  }
+  .cost-title{font-size:13px;font-weight:700;color:#1A4D6E;margin-bottom:10px}
+  .cost-grid{display:flex;flex-direction:column;gap:8px}
+  .cost-row{
+    display:flex;justify-content:space-between;align-items:center;
+    background:#fff;border-radius:8px;padding:10px 14px;
+    border:1px solid #dde8f0;
+  }
+  .cost-row.total{border:2px solid #1A4D6E;background:#f0f7fc}
+  .cost-row .label{font-size:13px;color:#444}
+  .cost-row.total .label{font-weight:700;color:#1A4D6E}
+  .cost-row .amount{font-size:15px;font-weight:700;color:#1a1a1a}
+  .cost-row.total .amount{font-size:18px;color:#1A4D6E}
+
+  /* Timeline bar */
+  .timeline-bar{
+    margin-top:20px;background:#fff;border-radius:12px;
+    padding:16px 18px;border:1px solid #e0e0dc;
+  }
+  .timeline-title{font-size:13px;font-weight:700;color:#333;margin-bottom:12px}
+  .bar-track{
+    height:28px;background:#f0f0ec;border-radius:14px;
+    display:flex;overflow:hidden;position:relative;
+  }
+  .bar-segment{
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:600;color:#fff;
+    white-space:nowrap;padding:0 6px;
+  }
+  .bar-labels{display:flex;margin-top:6px;font-size:10px;color:#999}
+  .bar-labels span{display:flex;align-items:center;gap:4px}
+  .bar-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+  .memo{
+    margin-top:24px;padding:14px 16px;
+    background:#FFFDE8;border-radius:10px;border:1px solid #E8D880;
+    font-size:12px;color:#5A4E1A;line-height:1.8;
+  }
+  .memo strong{display:block;margin-bottom:4px}
+
+  .footnote{
+    text-align:center;font-size:11px;color:#bbb;
+    margin-top:20px;padding-bottom:16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-sub">DETAIL FLOW</div>
+  <h1>合同会社設立<br>7つのステップ詳細ガイド</h1>
+  <div class="header-note">農業法人として設立する場合のポイント付き</div>
+</div>
+
+<div class="timeline" id="timeline"></div>
+
+<!-- Checklist: 登記申請の必要書類 -->
+<div class="checklist">
+  <div class="checklist-header" style="background:#2E5A3A">📋 登記申請の必要書類チェックリスト</div>
+  <div id="checklistRows"></div>
+</div>
+
+<!-- Cost Summary -->
+<div class="cost-summary">
+  <div class="cost-title">💴 合同会社 設立費用まとめ</div>
+  <div class="cost-grid" id="costGrid"></div>
+</div>
+
+<!-- Timeline Bar -->
+<div class="timeline-bar">
+  <div class="timeline-title">⏱ 所要期間の目安</div>
+  <div class="bar-track">
+    <div class="bar-segment" style="width:15%;background:#3A7CA5">準備</div>
+    <div class="bar-segment" style="width:20%;background:#2E5A3A">定款</div>
+    <div class="bar-segment" style="width:10%;background:#D4883A">払込</div>
+    <div class="bar-segment" style="width:15%;background:#8B4A6B">書類</div>
+    <div class="bar-segment" style="width:25%;background:#5C3D1E">登記待ち</div>
+    <div class="bar-segment" style="width:15%;background:#6B4A8B">届出</div>
+  </div>
+  <div class="bar-labels" style="justify-content:space-between;margin-top:8px">
+    <span>0日</span><span>約1週間</span><span>約2週間</span>
+  </div>
+  <div style="font-size:11px;color:#777;margin-top:8px;line-height:1.6">
+    ※ 最短約2週間。印鑑作成の納期や書類の不備がなければスムーズに進みます。
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="memo">
+  <strong>💡 農業法人としての注意点</strong>
+  定款の事業目的に「農産物の生産・加工・販売」を必ず入れること。社員構成は農地所有適格法人の議決権要件（農業関係者が過半）を見据えて設計してください。設立後すぐに農業委員会への相談を始め、Phase 3（農地取得→農地所有適格法人化）に進みましょう。
+</div>
+<div class="footnote">※ 各ステップをタップすると詳細とアドバイスが表示されます</div>
+
+<script>
+const steps = [
+  {
+    id:1, label:"Step 1", title:"会社の基本事項を決める",
+    duration:"1〜3日", cost:"0円",
+    color:"#3A7CA5", bgColor:"#EBF3F8", borderColor:"#8BB8D6",
+    items:[
+      {label:"商号（会社名）を決定",detail:"「合同会社○○ファーム」など。前か後ろに必ず「合同会社」を入れる。同一住所で同一商号は不可。",icon:"🏷️",tip:"国税庁法人番号公表サイトで類似商号を事前チェック。有名企業と紛らわしい名前は不正競争防止法のリスクがあります。"},
+      {label:"本店所在地を決定",detail:"自宅・事務所・農地所在地など。法律上の住所なので実際の営農地と異なってもOK。",icon:"📍",tip:"農業委員会の管轄は農地の所在地で決まるため、本店所在地とは別の話です。混同しないように。"},
+      {label:"事業目的を決定",detail:"「農産物の生産」「農産物の加工・販売」「農作業の受託」等を記載。将来の事業も入れておく。",icon:"🎯",tip:"事業目的の後からの追加は変更登記で3万円かかります。6次産業化を視野に入れるなら最初から加工・販売・飲食も入れましょう。",highlight:true},
+      {label:"資本金の額を決定",detail:"法律上は1円から可能。実務上は100〜300万円が一般的。消費税免税のため1,000万円未満推奨。",icon:"💰",tip:"農業機械・種苗等の初期投資を踏まえた額に。ただし資本金と別に融資で調達する計画も並行して立てましょう。"},
+      {label:"社員構成を設計",detail:"出資者＝社員。農地所有適格法人を目指すなら、農業関係者が議決権の過半を占める構成に。",icon:"👥",tip:"合同会社は出資比率に関係なく「社員1人1議決権」が原則。定款で別の定めも可能なので、要件を満たす設計を。"},
+      {label:"事業年度を決定",detail:"農業の場合、収穫期を避けた農閑期に決算月を設定するのがおすすめ。",icon:"📅",tip:"例えば稲作中心なら12月決算を避け、2〜3月決算にする等。設立初年度が短くなりすぎないよう逆算も必要です。"}
+    ]
+  },
+  {
+    id:2, label:"Step 2", title:"法人印鑑の作成",
+    duration:"3〜7日", cost:"約1〜2万円",
+    color:"#6B4A8B", bgColor:"#F5EEF8", borderColor:"#C4A3D9",
+    items:[
+      {label:"代表者印（実印）",detail:"法務局に届出する会社の実印。丸印で直径18mm程度が一般的。",icon:"🔴",tip:"登記申請書に押印するので、登記前に必ず手元に届くようスケジュール管理を。"},
+      {label:"銀行印",detail:"法人口座開設時に届出する印鑑。実印と分けるのが安全。",icon:"🏦",tip:"実印と同じにもできますが、紛失・盗難リスクを考えて別に作るのが一般的です。"},
+      {label:"角印（社印）",detail:"請求書・領収書・見積書等に押す会社の認印。必須ではないが実務上あると便利。",icon:"🔲",tip:"3本セットでネット注文すると1〜2万円。納期は通常3〜5営業日です。"}
+    ]
+  },
+  {
+    id:3, label:"Step 3", title:"定款の作成",
+    duration:"1〜5日", cost:"0円（電子定款）/ 4万円（紙）",
+    color:"#2E5A3A", bgColor:"#EEF5F0", borderColor:"#8DC09E",
+    items:[
+      {label:"絶対的記載事項を記載",detail:"目的・商号・本店所在地・社員の氏名住所・全社員有限責任の旨・出資の目的と価額の6項目。",icon:"📝",tip:"この6項目のうち1つでも欠けると定款自体が無効。テンプレートを使う場合も必ず確認を。",highlight:true},
+      {label:"相対的記載事項を検討",detail:"業務執行社員の指名、代表社員の選定方法、利益分配の割合、持分譲渡の要件など。",icon:"⚖️",tip:"農業法人では「業務執行社員の中に農作業60日以上従事する者を含める」旨を設計に反映させましょう。"},
+      {label:"任意的記載事項を追加",detail:"事業年度、業務執行社員の報酬、社員総会の規定など。法律に反しない範囲で自由に定められる。",icon:"📎",tip:"社員が複数いる場合、意思決定方法や退社時の持分払戻しルールを定款で明確にしておくとトラブル防止になります。"},
+      {label:"電子定款 or 紙定款の選択",detail:"電子定款なら収入印紙4万円が不要。合同会社は公証人の認証も不要。",icon:"💻",tip:"freee会社設立やマネーフォワード会社設立を使えば、電子署名付き定款を無料〜数千円で作成可能。自力で環境構築するより遥かに効率的です。"},
+      {label:"社員全員の署名・記名押印",detail:"定款に社員全員が署名または記名押印。電子定款の場合は電子署名。",icon:"✍️",tip:"1人で設立する場合は自分の署名のみでOK。"}
+    ]
+  },
+  {
+    id:4, label:"Step 4", title:"出資金の払い込み",
+    duration:"1日", cost:"0円",
+    color:"#D4883A", bgColor:"#FDF5EE", borderColor:"#E8C090",
+    items:[
+      {label:"代表社員の個人口座に振込",detail:"定款作成日以降に、各社員が出資金を代表社員の個人口座へ振込。法人口座はまだ作れない。",icon:"🏧",tip:"1人設立でも自分の口座に自分で「振込」が必要。既にある残高ではなく、振込の記録がないとNGです。"},
+      {label:"通帳コピーの取得",detail:"通帳の表紙・1ページ目（口座情報）・振込記帳ページの3箇所をコピー。",icon:"📄",tip:"ネットバンクの場合は取引明細のスクリーンショットや印刷で代用可能です。"},
+      {label:"払込証明書の作成",detail:"「払込みがあったことを証する書面」を作成し、代表社員が記名押印。通帳コピーを合綴。",icon:"📋",tip:"書面のテンプレートは法務局サイトやfreee等で入手可能。金額と日付の整合性に注意。"}
+    ]
+  },
+  {
+    id:5, label:"Step 5", title:"登記書類の準備",
+    duration:"1〜3日", cost:"0円",
+    color:"#8B4A6B", bgColor:"#F8EEF3", borderColor:"#D4A0BD",
+    items:[
+      {label:"合同会社設立登記申請書",detail:"法務局の書式に沿って作成。商号・本店・資本金・業務執行社員・代表社員等を記載。",icon:"📑",tip:"法務局HPにひな形あり。記載ミスは補正指示が来て設立日が遅れる原因になります。"},
+      {label:"登録免許税の収入印紙",detail:"資本金×0.7%（最低6万円）。収入印紙を貼付台紙に貼って申請書に合綴。",icon:"💴",tip:"収入印紙は法務局内の売店や郵便局で購入。オンライン申請の場合はネットバンキングで納付も可能。"},
+      {label:"その他の添付書類",detail:"定款、代表社員の印鑑証明書、払込証明書、印鑑届書。社員が複数なら同意書等も追加。",icon:"📂",tip:"印鑑証明書は発行から3ヶ月以内のもの。マイナンバーカードがあればコンビニ発行が便利です。"},
+      {label:"書類の綴じ方を確認",detail:"申請書→収入印紙台紙→定款→払込証明書の順で綴じ、各書類の境目に契印。",icon:"📎",tip:"綴じ方を間違えても法的には問題ありませんが、法務局で差し戻されることがあります。事前に法務局の相談窓口で確認するのが確実。"}
+    ]
+  },
+  {
+    id:6, label:"Step 6", title:"法務局へ登記申請",
+    duration:"申請→完了まで7〜10日", cost:"6万円〜（登録免許税）",
+    color:"#5C3D1E", bgColor:"#F8F2EC", borderColor:"#C8A882",
+    items:[
+      {label:"管轄法務局に申請",detail:"本店所在地を管轄する法務局に提出。窓口持参・郵送・オンライン申請の3通り。",icon:"🏛️",tip:"申請日＝会社設立日。記念日を設立日にしたい場合はその日に合わせて申請してください。2026年2月以降は休日も設立日に指定可能です。",highlight:true},
+      {label:"登記完了を待つ",detail:"申請から1週間〜10日で完了。補正がある場合は法務局から連絡。",icon:"⏳",tip:"法務局の混雑状況で前後します。3月・4月は繁忙期で遅くなる傾向。"},
+      {label:"登記簿謄本・印鑑証明書の取得",detail:"登記完了後、法務局で履歴事項全部証明書と印鑑証明書を取得。この後の届出に必要。",icon:"📜",tip:"各届出先に提出するため、謄本は5〜6通まとめて取得しておくと二度手間になりません（1通600円）。"}
+    ]
+  },
+  {
+    id:7, label:"Step 7", title:"設立後の届出",
+    duration:"〜2ヶ月以内", cost:"0円",
+    color:"#1E4D5C", bgColor:"#ECF3F5", borderColor:"#82B8C8",
+    items:[
+      {label:"税務署への届出",detail:"法人設立届出書（2ヶ月以内）、青色申告承認申請書（3ヶ月以内 or 初年度末の早い方）、給与支払事務所の開設届。",icon:"🏢",tip:"青色申告承認は節税の基本。期限を1日でも過ぎると初年度は白色申告になるので最優先で提出を。",highlight:true},
+      {label:"都道府県・市町村への届出",detail:"法人設立届出書を県税事務所と市役所の両方に提出。千葉県は千葉県税事務所へ。",icon:"🗾",tip:"提出期限は自治体により異なりますが、設立後1ヶ月〜2ヶ月以内が一般的です。"},
+      {label:"社会保険の加入手続き",detail:"年金事務所へ健康保険・厚生年金の新規適用届を提出。法人は社員1人でも強制加入。",icon:"🏥",tip:"届出は設立から5日以内が原則。社員の扶養家族の届出も同時に行います。"},
+      {label:"労働保険の手続き",detail:"従業員を雇う場合、労基署（労災保険）とハローワーク（雇用保険）に届出。",icon:"👷",tip:"農業法人は労災保険が強制適用。農繁期にパートを雇う場合も必要です。"},
+      {label:"法人口座の開設",detail:"銀行に登記簿謄本・印鑑証明書・定款等を持参。JAバンクも農業法人との取引に積極的。",icon:"💳",tip:"メガバンクは審査が厳しいことも。ネットバンクや信金・JAから始めて実績を作る方法もあります。"}
+    ]
+  }
+];
+
+const checklistData = [
+  {section:true, text:"必須書類（全ケース共通）"},
+  {icon:"□", text:"合同会社設立登記申請書", note:"法務局HPに書式あり"},
+  {icon:"□", text:"登録免許税の収入印紙貼付台紙", note:"6万円〜"},
+  {icon:"□", text:"定款（電子 or 紙）", note:"紙の場合は印紙4万円"},
+  {icon:"□", text:"代表社員の印鑑証明書", note:"発行3ヶ月以内"},
+  {icon:"□", text:"払込みを証する書面", note:"通帳コピー合綴"},
+  {icon:"□", text:"印鑑届書", note:"法人実印の届出"},
+  {section:true, text:"場合により必要な書類"},
+  {icon:"□", text:"代表社員の就任承諾書", note:"定款で直接定めない場合"},
+  {icon:"□", text:"本店所在地決定の同意書", note:"定款で番地まで定めない場合"},
+  {icon:"□", text:"代表社員決定書", note:"社員の互選で選定する場合"},
+];
+
+const costItems = [
+  {label:"登録免許税", amount:"6万円〜", total:false},
+  {label:"定款印紙代（電子定款なら不要）", amount:"0円", total:false},
+  {label:"定款認証手数料（合同会社は不要）", amount:"0円", total:false},
+  {label:"印鑑作成", amount:"約1〜2万円", total:false},
+  {label:"印鑑証明書・謄本等", amount:"約3,000円", total:false},
+  {label:"合計（自分で手続き）", amount:"約7〜8万円", total:true},
+];
+
+let expandedStep = null;
+let expandedDetail = null;
+
+function render() {
+  const tl = document.getElementById("timeline");
+  tl.innerHTML = "";
+
+  steps.forEach((s, si) => {
+    const block = document.createElement("div");
+    block.className = "step-block";
+
+    if (si < steps.length - 1) {
+      const conn = document.createElement("div");
+      conn.className = "connector";
+      conn.style.background = `linear-gradient(to bottom, ${s.borderColor}, ${steps[si+1].borderColor})`;
+      block.appendChild(conn);
+    }
+
+    const isOpen = expandedStep === s.id;
+    const header = document.createElement("div");
+    header.className = "step-header";
+    header.onclick = () => { expandedStep = expandedStep === s.id ? null : s.id; expandedDetail = null; render(); };
+
+    header.innerHTML = `
+      <div class="step-circle" style="background:${s.color};box-shadow:0 2px 8px ${s.color}44">${s.id}</div>
+      <div class="step-card" style="background:${s.bgColor};border:1.5px solid ${s.borderColor};${isOpen ? `box-shadow:0 4px 16px ${s.color}18` : ''}">
+        <div class="step-top">
+          <div>
+            <div class="step-label" style="color:${s.color}">${s.label}</div>
+            <div class="step-title">${s.title}</div>
+          </div>
+          <div class="step-arrow ${isOpen ? 'open' : ''}" style="color:${s.color}">▾</div>
+        </div>
+        <div class="step-meta">
+          <span class="step-tag">⏱ ${s.duration}</span>
+          <span class="step-tag">¥ ${s.cost}</span>
+        </div>
+      </div>
+    `;
+    block.appendChild(header);
+
+    const detailsWrap = document.createElement("div");
+    detailsWrap.className = "details-container" + (isOpen ? " open" : "");
+
+    s.items.forEach((d, di) => {
+      const key = `${s.id}-${di}`;
+      const isDetailOpen = expandedDetail === key;
+
+      const el = document.createElement("div");
+      const card = document.createElement("div");
+      card.className = "detail-card" + (d.highlight ? " highlight" : "");
+      if (d.highlight) { card.style.borderColor = s.color; card.style.background = s.color + "0D"; }
+      card.onclick = (e) => { e.stopPropagation(); expandedDetail = expandedDetail === key ? null : key; render(); };
+
+      card.innerHTML = `
+        <div class="detail-inner">
+          <span class="detail-icon">${d.icon}</span>
+          <div class="detail-body">
+            <div class="detail-label" style="${d.highlight ? `color:${s.color};font-weight:700` : ''}">${d.label}</div>
+            <div class="detail-text">${d.detail}</div>
+          </div>
+          <div class="detail-chevron ${isDetailOpen ? 'open' : ''}">›</div>
+        </div>
+        <div class="detail-tip ${isDetailOpen ? 'open' : ''}">💡 ${d.tip}</div>
+      `;
+      el.appendChild(card);
+
+      if (di < s.items.length - 1) {
+        const sep = document.createElement("div");
+        sep.className = "detail-sep";
+        sep.style.color = s.borderColor;
+        sep.textContent = "↓";
+        el.appendChild(sep);
+      }
+      detailsWrap.appendChild(el);
+    });
+
+    block.appendChild(detailsWrap);
+    tl.appendChild(block);
+  });
+
+  // Checklist
+  const cl = document.getElementById("checklistRows");
+  cl.innerHTML = "";
+  checklistData.forEach(r => {
+    const row = document.createElement("div");
+    row.className = "checklist-row" + (r.section ? " section" : "");
+    if (r.section) {
+      row.innerHTML = `<div class="checklist-icon">📁</div><div class="checklist-item">${r.text}</div><div class="checklist-note"></div>`;
+    } else {
+      row.innerHTML = `<div class="checklist-icon">${r.icon}</div><div class="checklist-item">${r.text}</div><div class="checklist-note">${r.note || ''}</div>`;
+    }
+    cl.appendChild(row);
+  });
+
+  // Cost
+  const cg = document.getElementById("costGrid");
+  cg.innerHTML = "";
+  costItems.forEach(c => {
+    const row = document.createElement("div");
+    row.className = "cost-row" + (c.total ? " total" : "");
+    row.innerHTML = `<div class="label">${c.label}</div><div class="amount">${c.amount}</div>`;
+    cg.appendChild(row);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
